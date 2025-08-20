@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/pkg/errors"
@@ -11,7 +12,7 @@ const HCPTerraformHost = "app.terraform.io"
 
 func parseBackendBlock(block *hclsyntax.Block) (*Workspace, error) {
 	// On backend block, label must be "remote"
-	if !isRemoteBackend(block.Labels) {
+	if !slices.Contains(block.Labels, "remote") {
 		return nil, errors.WithStack(fmt.Errorf(`backend labels must have "remote"`))
 	}
 
@@ -44,13 +45,4 @@ func parseBackendBlock(block *hclsyntax.Block) (*Workspace, error) {
 	}
 
 	return nil, errors.WithStack(fmt.Errorf("not enough informations got in terraform block"))
-}
-
-func isRemoteBackend(labels []string) bool {
-	for i := range labels {
-		if labels[i] == "remote" {
-			return true
-		}
-	}
-	return false
 }

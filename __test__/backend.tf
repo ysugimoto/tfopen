@@ -6,13 +6,12 @@ terraform {
       version = ">= 6.9.0"
     }
   }
-
-  cloud {
+  backend "remote" {
     hostname     = "app.terraform.io"
     organization = "dummy_org"
 
     workspaces {
-      project = "dummy_workspace"
+      name = "dummy_workspace"
     }
   }
 }

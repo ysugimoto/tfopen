@@ -23,7 +23,7 @@ cloud {
   organization = "dummy_org"
 
   workspaces {
-    project = "dummy_workspace"
+    name = "dummy_workspace"
   }
 }
 `,
@@ -41,7 +41,7 @@ cloud {
   organization = "dummy_org"
 
   workspaces {
-    project = "dummy_workspace"
+    name = "dummy_workspace"
   }
 }
 `,
@@ -55,7 +55,7 @@ cloud {
   hostname = "app.terraform.io"
 
   workspaces {
-    project = "dummy_workspace"
+    name = "dummy_workspace"
   }
 }
 `,

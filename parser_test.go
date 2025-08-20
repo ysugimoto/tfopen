@@ -11,10 +11,10 @@ import (
 
 func TestParseHCLFile(t *testing.T) {
 	testCases := []struct {
-		name          string
-		filename      string
-		expectedW     *Workspace
-		expectedErr   bool
+		name                string
+		filename            string
+		expectedW           *Workspace
+		expectedErr         bool
 		expectedErrContains string
 	}{
 		{
@@ -42,10 +42,10 @@ func TestParseHCLFile(t *testing.T) {
 			expectedErr: false,
 		},
 		{
-			name:        "file not found",
-			filename:    "nonexistent.tf",
-			expectedW:   nil,
-			expectedErr: true,
+			name:                "file not found",
+			filename:            "nonexistent.tf",
+			expectedW:           nil,
+			expectedErr:         true,
 			expectedErrContains: "no such file or directory",
 		},
 	}

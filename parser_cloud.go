@@ -26,17 +26,13 @@ func parseCloudBlock(block *hclsyntax.Block) (*Workspace, error) {
 		if b.Type != "workspaces" {
 			continue
 		}
-		attr, ok := b.Body.Attributes["project"]
-		if !ok {
-			return nil, errors.WithStack(fmt.Errorf("project attribute not found in cloud.workspaces"))
-		}
-		ws, err := evalExpression(attr.Expr)
+		name, err := getAttribute(b.Body.Attributes, "name")
 		if err != nil {
-			return nil, err
+			return nil, errors.WithStack(fmt.Errorf("failed to get name attribute in cloud.workspaces: %w", err))
 		}
 		return &Workspace{
 			Organization: org,
-			Workspace:    ws,
+			Workspace:    name,
 		}, nil
 	}
 

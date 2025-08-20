@@ -6,7 +6,8 @@ terraform {
       version = ">= 6.9.0"
     }
   }
-  backend "remote" {
+
+  cloud {
     hostname     = "app.terraform.io"
     organization = "dummy_org"
 
