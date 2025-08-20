@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -30,16 +31,16 @@ func (w *Workspace) toURL() string {
 func parseHCLFile(p *hclparse.Parser, filename string) (*Workspace, error) {
 	content, err := os.ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	file, diag := p.ParseHCL(content, filename)
 	if diag.HasErrors() {
-		return nil, fmt.Errorf("HCL file parse error: %s", diag.Error())
+		return nil, errors.WithStack(fmt.Errorf("HCL file parse error: %s", diag.Error()))
 	}
 
 	hcl, ok := file.Body.(*hclsyntax.Body)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert to hclsyntax.Body")
+		return nil, errors.WithStack(fmt.Errorf("failed to assert to hclsyntax.Body"))
 	}
 
 	for _, block := range hcl.Blocks {
@@ -53,13 +54,13 @@ func parseHCLFile(p *hclparse.Parser, filename string) (*Workspace, error) {
 			case blockTypeCloud:
 				ws, err := parseCloudBlock(tf)
 				if err != nil {
-					return nil, fmt.Errorf("Failed to parse cloud block: %w", err)
+					return nil, errors.WithStack(fmt.Errorf("failed to parse cloud block: %w", err))
 				}
 				return ws, nil
 			case blockTypeBackend:
 				ws, err := parseBackendBlock(tf)
 				if err != nil {
-					return nil, fmt.Errorf("Failed to parse backend block: %w", err)
+					return nil, errors.WithStack(fmt.Errorf("failed to parse backend block: %w", err))
 				}
 				return ws, nil
 			}

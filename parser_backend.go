@@ -4,12 +4,15 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2/hclsyntax"
+	"github.com/pkg/errors"
 )
+
+const HCPTerraformHost = "app.terraform.io"
 
 func parseBackendBlock(block *hclsyntax.Block) (*Workspace, error) {
 	// On backend block, label must be "remote"
 	if !isRemoteBackend(block.Labels) {
-		return nil, fmt.Errorf(`Backend label must be "remote"`)
+		return nil, errors.WithStack(fmt.Errorf(`backend labels must have "remote"`))
 	}
 
 	hostname, err := getAttribute(block.Body.Attributes, "hostname")
@@ -17,13 +20,13 @@ func parseBackendBlock(block *hclsyntax.Block) (*Workspace, error) {
 		return nil, nil
 	}
 	// hostname must be "app.terraform.io"
-	if hostname != "app.terraform.io" {
+	if hostname != HCPTerraformHost {
 		return nil, nil
 	}
 
 	org, err := getAttribute(block.Body.Attributes, "organization")
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get organization attribute: %w", err)
+		return nil, errors.WithStack(fmt.Errorf("failed to get organization attribute: %w", err))
 	}
 
 	for _, b := range block.Body.Blocks {
@@ -32,7 +35,7 @@ func parseBackendBlock(block *hclsyntax.Block) (*Workspace, error) {
 		}
 		workspace, err := getAttribute(b.Body.Attributes, "name")
 		if err != nil {
-			return nil, fmt.Errorf("name attribute not found in backend.workspaces")
+			return nil, errors.WithStack(fmt.Errorf("name attribute not found in backend.workspaces"))
 		}
 		return &Workspace{
 			Organization: org,
@@ -40,7 +43,7 @@ func parseBackendBlock(block *hclsyntax.Block) (*Workspace, error) {
 		}, nil
 	}
 
-	return nil, fmt.Errorf("No enough information got in terraform block")
+	return nil, errors.WithStack(fmt.Errorf("not enough informations got in terraform block"))
 }
 
 func isRemoteBackend(labels []string) bool {

@@ -2,14 +2,23 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 
 	"github.com/hashicorp/hcl/v2/hclparse"
+	"github.com/pkg/errors"
 )
 
+var version string
+
 func main() {
+	if len(os.Args) > 0 && os.Args[0] == "version" {
+		fmt.Println(version)
+		os.Exit(1)
+	}
+
 	if err := _main(); err != nil {
 		panic(err)
 	}
@@ -22,18 +31,21 @@ func _main() error {
 	if err != nil {
 		return err
 	}
+
 	for i := range matches {
 		ws, err := parseHCLFile(parser, matches[i])
 		if err != nil {
 			return err
 		}
 		if ws != nil {
-			openBrowser(ws)
-			break
+			if err := openBrowser(ws); err != nil {
+				return errors.WithStack(err)
+			}
+			return nil
 		}
 	}
 
-	return nil
+	return errors.New("no Terraform configuation found")
 }
 
 func openBrowser(ws *Workspace) error {
@@ -47,8 +59,11 @@ func openBrowser(ws *Workspace) error {
 	case "darwin":
 		err = exec.Command("open", ws.toURL()).Start()
 	default:
-		err = fmt.Errorf("Unsupport runtime OS: %s", runtime.GOOS)
+		err = fmt.Errorf("unsupport runtime OS: %s", runtime.GOOS)
 	}
 
-	return err
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
 }
