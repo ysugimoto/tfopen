@@ -12,6 +12,7 @@ import (
 )
 
 var version string
+var ErrNoFile = errors.New("no file")
 
 func main() {
 	if len(os.Args) > 0 && os.Args[0] == "version" {
@@ -20,7 +21,12 @@ func main() {
 	}
 
 	if err := _main(); err != nil {
-		panic(err)
+		if err == ErrNoFile {
+			fmt.Println("no Terraform configuration found")
+			os.Exit(0)
+		}
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 }
 
@@ -45,7 +51,7 @@ func _main() error {
 		}
 	}
 
-	return errors.New("no Terraform configuation found")
+	return ErrNoFile
 }
 
 func openBrowser(ws *Workspace) error {
